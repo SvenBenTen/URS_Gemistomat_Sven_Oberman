@@ -22,13 +22,11 @@
 #include "tim.h"
 #include "gpio.h"
 
-/* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "liquidcrystal_i2c.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 
-/* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 typedef enum {
   DRINK_SKROPEC = 0,
@@ -73,15 +71,15 @@ volatile uint32_t g_seconds = 0;
 system_state_t state = ST_IDLE;
 
 // Ukupni volumen (ml)
-uint16_t total_ml = 300;
+uint16_t total_ml = 200;
 
 // Izračunatee količine (ml)
 uint16_t target_wine_ml = 0;
 uint16_t target_water_ml = 0;
 
 // Protok pumpe
-float flow_wine_ml_s  = 4.0f;
-float flow_water_ml_s = 6.0f;
+float flow_wine_ml_s  = 16.0f;
+float flow_water_ml_s = 16.0f;
 
 volatile uint32_t phase_ticks_left = 0;
 
@@ -94,7 +92,7 @@ uint8_t water_percent = 80;
 uint8_t start_request = 0;
 /* USER CODE END PV */
 
-/* Private function prototypes -----------------------------------------------*/
+
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 static inline uint8_t BTN_SELECT_Pressed(void);
@@ -103,7 +101,7 @@ static void update_drink_ratio(void);
 static void lcd_show_menu(void);
 /* USER CODE END PFP */
 
-/* Private user code ---------------------------------------------------------*/
+
 /* USER CODE BEGIN 0 */
 static inline uint8_t BTN_SELECT_Pressed(void)
 {
@@ -161,7 +159,6 @@ static void lcd_show_menu(void)
 }
 
 // PUMP / RELAY CONTROL
-// PUMP / RELAY CONTROL (ACTIVE HIGH)
 static inline void PUMP_WINE_ON(void)   { HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);   }
 static inline void PUMP_WINE_OFF(void)  { HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET); }
 static inline void PUMP_WATER_ON(void)  { HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);   }
@@ -214,18 +211,15 @@ static void start_cycle(void)
   */
 int main(void)
 {
-  /* MCU Configuration--------------------------------------------------------*/
   HAL_Init();
 
   /* Configure the system clock */
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  // dobro za drivere koji koriste SystemCoreClock (DWT delay u LCD driveru)
   SystemCoreClockUpdate();
   /* USER CODE END SysInit */
 
-  /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C1_Init();
   MX_TIM2_Init();
@@ -383,7 +377,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_TIM_Interrupt(TIM_HandleTypeDef *htim)
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if (htim->Instance == TIM2)
   {
@@ -443,3 +437,5 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
+
+
